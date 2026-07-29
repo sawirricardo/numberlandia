@@ -71,9 +71,9 @@ h1{font-size:clamp(34px,11vw,54px);margin:.2em 0 0;text-align:center;letter-spac
   font-weight:800;font-size:clamp(17px,5vw,24px);letter-spacing:-.5px;
   text-shadow:0 2px 10px rgba(0,0,0,.6)}
 #hudbar button.off,.btn.off{opacity:.38;text-decoration:line-through}
-#hudbar button{min-height:44px;min-width:42px;flex:0 0 auto;padding:0 6px;border:0;border-radius:14px;cursor:pointer;font-size:19px;
+#hudbar button{min-height:44px;min-width:38px;flex:0 0 auto;padding:0 5px;border:0;border-radius:14px;cursor:pointer;font-size:19px;
   background:rgba(12,8,30,.5);color:#fff;border:2px solid var(--line);backdrop-filter:blur(6px)}
-#hudbar .tot{font-weight:800;font-size:17px;text-shadow:0 2px 8px #000;white-space:nowrap}
+#hudbar .tot{font-weight:800;font-size:15px;text-shadow:0 2px 8px #000;white-space:nowrap}
 #hint{text-align:center;font-size:14px;opacity:.85;text-shadow:0 2px 8px #000;margin-top:4px}
 
 /* island panel (bottom sheet) */
@@ -114,6 +114,22 @@ body.cine #hudbar,body.cine #hint{visibility:hidden}
 #crawlskip{position:absolute;right:14px;bottom:14px;z-index:2;font-size:14px;opacity:.75;
   background:rgba(0,0,0,.45);border-radius:12px;padding:8px 12px}
 
+#report{position:fixed;inset:0;z-index:43;display:none;align-items:flex-start;justify-content:center;
+  padding:16px;background:rgba(5,2,16,.93);overflow:auto}
+#report.on{display:flex}
+#report .card{max-width:460px;width:100%;margin:auto;text-align:center}
+#report h2{font-family:var(--disp);letter-spacing:.05em;font-size:clamp(26px,7.5vw,34px);
+  color:#ffd76e;margin:.1em 0 .5em;-webkit-text-stroke:.8px var(--ink);text-shadow:2px 3px 0 #2a1240}
+#repbody{font-size:15px;line-height:1.5;text-align:left;margin-bottom:14px}
+#repbody .who{font-size:18px;font-weight:700;margin-bottom:8px;text-align:center}
+#repbody table{width:100%;border-collapse:collapse}
+#repbody th,#repbody td{padding:6px 4px;border-bottom:1px solid var(--line);font-size:14px}
+#repbody th{opacity:.75;font-weight:600;text-align:left}
+#repbody td.n{text-align:right;font-variant-numeric:tabular-nums}
+#repqr{background:#fff;padding:12px;border-radius:14px;display:inline-block;line-height:0;margin-bottom:6px}
+#repqr img{width:min(58vw,230px);height:auto;image-rendering:pixelated}
+#rephint{font-size:12.5px;opacity:.7;margin:0 0 14px}
+
 #namecard{position:fixed;inset:0;z-index:44;display:none;align-items:center;justify-content:center;
   padding:20px;background:radial-gradient(ellipse at 50% 40%,rgba(40,20,80,.65),rgba(5,2,16,.94) 70%)}
 #namecard.on{display:flex}
@@ -126,8 +142,11 @@ body.cine #hudbar,body.cine #hint{visibility:hidden}
   padding:10px 14px;margin-bottom:14px;outline:none}
 #nameinput:focus{border-color:#ffd76e}
 #nameinput::placeholder{color:rgba(255,255,255,.45)}
-#namechip,#namechip2{max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+#namenote{font-size:14px;line-height:1.4;color:rgba(255,255,255,.8);
+  margin:0 0 14px;padding:0 4px}
+#namechip,#namechip2{max-width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   font-size:14px!important;font-family:var(--disp);letter-spacing:.04em}
+@media (max-width:470px){ #namechip .who{display:none} }
 
 #story{position:fixed;inset:0;z-index:36;display:none;align-items:center;justify-content:center;
   padding:18px;background:rgba(5,2,16,.9);overflow:auto}
@@ -322,11 +341,22 @@ h1{filter:drop-shadow(0 3px 0 #45206e) drop-shadow(0 5px 0 #2a1240) drop-shadow(
   <div id="crawlskip">tap to skip ⏭</div>
 </div>
 
+<div id="report">
+  <div class="card">
+    <h2>My Report Card</h2>
+    <div id="repbody"></div>
+    <div id="repqr"></div>
+    <p id="rephint">Point a phone camera at the code to read the results.</p>
+    <button class="btn" id="repclose">Close ✕</button>
+  </div>
+</div>
+
 <div id="namecard">
   <div class="card">
     <h2>What's your name, hero?</h2>
     <input id="nameinput" maxlength="12" autocapitalize="words" autocomplete="off"
            spellcheck="false" placeholder="Hero">
+    <p id="namenote">Your name and scores are shared with your teacher 🍎</p>
     <button class="btn" id="namego">Let's go! ▶</button>
   </div>
 </div>
@@ -347,7 +377,8 @@ h1{filter:drop-shadow(0 3px 0 #45206e) drop-shadow(0 5px 0 #2a1240) drop-shadow(
     <div id="hudbar">
       <span class="ttl">🏝️ Numberlandia</span>
       <span class="tot" id="tot">⭐ 0</span>
-      <button id="namechip" title="Change name">✏️</button>
+      <button id="report-btn" title="Report card">📋</button>
+      <button id="namechip" title="Change name">✏️<span class="who"></span></button>
       <button id="replay" title="Story again">📖</button>
       <button id="music" title="Music">🎵</button>
       <button id="mute" title="Sound effects">🔊</button>
@@ -366,6 +397,7 @@ h1{filter:drop-shadow(0 3px 0 #45206e) drop-shadow(0 5px 0 #2a1240) drop-shadow(
     <div id="trophy" class="card" style="display:none;text-align:center">🏆 <b>Boss defeated!</b> You are a Number Master.</div>
     <div id="worlds"></div>
     <div class="row" style="margin-top:14px">
+      <button class="btn ghost" id="report-btn2" title="Report card">📋</button>
       <button class="btn ghost" id="namechip2" title="Change name">✏️</button>
       <button class="btn ghost" id="music2" title="Music">🎵</button>
       <button class="btn ghost" id="mute2" title="Sound effects">🔊</button>
@@ -456,6 +488,7 @@ function numberToWords(n){
 </script>
 
 <script src="vendor/three.min.js"></script>
+<script src="vendor/qrcode.min.js"></script>
 
 <script id="app">
 /* ---------- state ---------- */
@@ -595,6 +628,51 @@ var toastT=null;
 function toast(msg){
   var t=$("#toast"); t.textContent=msg; t.classList.add("on");
   clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove("on")},1800);
+}
+
+/* ---------- score reporting ----------
+   Always on. ?batch=<code> tags a classroom run; without it the batch field is "-". */
+var FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSfbSJKUlZB_qKWF-Ll5umnhNu8dNYn96E00CVu6btrbTgYSqw/formResponse";
+var FIELD={batch:"entry.181214627",name:"entry.2075341743",island:"entry.930649724",
+  score:"entry.965110703",stars:"entry.45407110",attempt:"entry.1283505456",dev:"entry.1846213118"};
+function devId(){
+  if(!SAVE.dev){
+    var s="";
+    while(s.length<8)s+=Math.random().toString(36).slice(2);
+    SAVE.dev=s.slice(0,8).toUpperCase();
+    save();
+  }
+  return SAVE.dev;
+}
+function postForm(rec){
+  var body=[];
+  for(var k in FIELD)body.push(FIELD[k]+"="+encodeURIComponent(rec[k]));
+  return fetch(FORM_URL,{method:"POST",mode:"no-cors",
+    headers:{"Content-Type":"application/x-www-form-urlencoded"},
+    body:body.join("&")});
+}
+function queueRec(rec){
+  SAVE.pending=(SAVE.pending||[]).concat([rec]).slice(-50);
+  save();
+}
+var flushing=false;
+function flushQueue(){
+  if(flushing||!window.fetch)return;
+  var q=SAVE.pending||[];
+  if(!q.length)return;
+  flushing=true;
+  postForm(q[0]).then(function(){
+    (SAVE.pending||[]).shift(); save();
+    flushing=false; flushQueue();          /* one at a time, stop on the first failure */
+  }).catch(function(){ flushing=false });
+}
+/* no-cors gives an opaque response, so a resolved promise is all the ack we can get */
+function sendScore(rec){
+  if(!window.fetch){ queueRec(rec); return }
+  postForm(rec).then(function(){
+    if(SAVE.batch)toast("✓ score sent");    /* only classroom runs get the confirmation */
+    flushQueue();
+  }).catch(function(){ queueRec(rec) });
 }
 
 /* ---------- place value chart ---------- */
@@ -783,7 +861,12 @@ function finish(){
   var firstClear=stars>0&&!rescued(w);
   if(stars>(SAVE.stars[w]||0))SAVE.stars[w]=stars;
   if(w===5&&stars>0)SAVE.trophy=true;
+  SAVE.att=SAVE.att||{}; SAVE.att[w]=(SAVE.att[w]||0)+1;
+  SAVE.best=SAVE.best||{};
+  if(G.score>(SAVE.best[w]||0))SAVE.best[w]=G.score;
   save();
+  sendScore({batch:SAVE.batch||"-",name:playerName(),island:w,score:G.score,
+    stars:stars,attempt:SAVE.att[w],dev:devId()});
 
   $("#res-stars").textContent=stars?"⭐".repeat(stars)+"☆".repeat(3-stars):"☆☆☆";
   $("#res-title").textContent=stars===3?"Perfect run, "+playerName()+"!":stars===2?"Great job!":stars===1?"Nice work!":"Keep practising!";
@@ -1021,6 +1104,43 @@ function syncMute(){
   $("#tot").textContent="⭐ "+totalStars();
 }
 
+/* ---------- report card ---------- */
+function reportText(){
+  var p=["NUMBERLANDIA",playerName(),SAVE.batch||"-"];
+  for(var w=1;w<=5;w++){
+    p.push("W"+w+":"+((SAVE.best||{})[w]||0)+"/"+QN+
+           "*"+(SAVE.stars[w]||0)+" a"+((SAVE.att||{})[w]||0));
+  }
+  p.push(new Date().toISOString().slice(0,10));
+  return p.join("|");
+}
+function openReport(){
+  var rows="",best=SAVE.best||{},att=SAVE.att||{};
+  for(var w=1;w<=5;w++){
+    var st=SAVE.stars[w]||0;
+    rows+="<tr><th>"+esc(WORLDS[w-1].name)+"</th>"+
+      "<td class='n'>"+(st?"⭐".repeat(st):"—")+"</td>"+
+      "<td class='n'>"+(best[w]||0)+"/"+QN+"</td>"+
+      "<td class='n'>"+(att[w]||0)+"</td></tr>";
+  }
+  $("#repbody").innerHTML=
+    "<div class='who'>"+esc(playerName())+(SAVE.batch?" · class "+esc(SAVE.batch):"")+
+    (SAVE.trophy?" · 🏆":"")+"</div>"+
+    "<table><tr><th>Island</th><th class='n'>Stars</th><th class='n'>Best</th><th class='n'>Tries</th></tr>"+
+    rows+"</table>"+
+    "<div style='text-align:center;opacity:.7;margin-top:8px'>"+
+    new Date().toISOString().slice(0,10)+"</div>";
+  var box=$("#repqr");
+  try{
+    var q=qrcode(0,"M");
+    q.addData(reportText());
+    q.make();
+    box.innerHTML=q.createImgTag(4,8);
+  }catch(e){ box.innerHTML="<div style='color:#333;padding:8px;font:12px monospace'>"+
+    esc(reportText())+"</div>" }
+  $("#report").classList.add("on");
+}
+
 /* ---------- opening ---------- */
 var STORY=[
  "Far across the sea lie the islands of NUMBERLANDIA…",
@@ -1052,7 +1172,7 @@ function commitName(){
   if(cb)cb();
 }
 function syncName(){
-  $("#namechip").textContent="✏️ "+playerName();
+  $("#namechip").querySelector(".who").textContent=" "+playerName();
   $("#namechip2").textContent="✏️ "+playerName();
 }
 function storyLines(){
@@ -1108,6 +1228,9 @@ function endOpening(){
 
 /* ---------- boot ---------- */
 function boot(){
+  var bm=/[?&]batch=([^&]*)/.exec(location.search||"");
+  if(bm&&bm[1]){ SAVE.batch=decodeURIComponent(bm[1]).slice(0,32); save() }
+  flushQueue();                       /* retry anything stranded by a previous offline run */
   var emo=["✨","🌟","🔷","🟣","➕","🔺","🟡","💫"],s="";
   for(var i=0;i<14;i++)
     s+="<b style='left:"+rnd(0,96)+"vw;animation-duration:"+rnd(16,34)+"s;animation-delay:-"+rnd(0,30)+"s'>"+pick(emo)+"</b>";
@@ -1135,6 +1258,9 @@ function boot(){
     e.stopPropagation();                                  /* don't let Enter hit the gate */
     if(e.key==="Enter")commitName();
   });
+  var rep=function(){ sndTap(); openReport() };
+  $("#report-btn").onclick=rep; $("#report-btn2").onclick=rep;
+  $("#repclose").onclick=function(){ sndTap(); $("#report").classList.remove("on") };
   var editName=function(){ sndTap(); openName(null) };
   $("#namechip").onclick=editName; $("#namechip2").onclick=editName;
   syncName();
