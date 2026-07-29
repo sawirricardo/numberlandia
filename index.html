@@ -123,7 +123,8 @@ body.cine #hudbar,body.cine #hint{visibility:hidden}
 #repbody{font-size:15px;line-height:1.5;text-align:left;margin-bottom:14px}
 #repbody .who{font-size:18px;font-weight:700;margin-bottom:8px;text-align:center}
 #repbody table{width:100%;border-collapse:collapse}
-#repbody th,#repbody td{padding:6px 4px;border-bottom:1px solid var(--line);font-size:14px}
+#repbody th,#repbody td{padding:6px 3px;border-bottom:1px solid var(--line);
+  font-size:clamp(11.5px,3.2vw,14px)}
 #repbody th{opacity:.75;font-weight:600;text-align:left}
 #repbody td.n{text-align:right;font-variant-numeric:tabular-nums}
 #repqr{background:#fff;padding:12px;border-radius:14px;display:inline-block;line-height:0;margin-bottom:6px}
@@ -634,7 +635,8 @@ function toast(msg){
    Always on. ?batch=<code> tags a classroom run; without it the batch field is "-". */
 var FORM_URL="https://docs.google.com/forms/d/e/1FAIpQLSfbSJKUlZB_qKWF-Ll5umnhNu8dNYn96E00CVu6btrbTgYSqw/formResponse";
 var FIELD={batch:"entry.181214627",name:"entry.2075341743",island:"entry.930649724",
-  score:"entry.965110703",stars:"entry.45407110",attempt:"entry.1283505456",dev:"entry.1846213118"};
+  score:"entry.965110703",stars:"entry.45407110",attempt:"entry.1283505456",dev:"entry.1846213118",
+  secs:"entry.798108559"};
 function devId(){
   if(!SAVE.dev){
     var s="";
@@ -832,7 +834,7 @@ var QN=5;                       /* questions per world */
 var G=null; // {world,round,score,streak,q,locked}
 
 function startWorld(w){
-  G={world:w,round:0,score:0,streak:0};
+  G={world:w,round:0,score:0,streak:0,t0:null,t1:null};
   document.documentElement.style.setProperty("--accent",WORLDS[w-1].accent);
   closePanel();
   document.body.classList.add("playing");
@@ -861,12 +863,15 @@ function finish(){
   var firstClear=stars>0&&!rescued(w);
   if(stars>(SAVE.stars[w]||0))SAVE.stars[w]=stars;
   if(w===5&&stars>0)SAVE.trophy=true;
+  var secs=G.t0==null?0:Math.max(0,Math.round(((G.t1||Date.now())-G.t0)/1000));
   SAVE.att=SAVE.att||{}; SAVE.att[w]=(SAVE.att[w]||0)+1;
   SAVE.best=SAVE.best||{};
   if(G.score>(SAVE.best[w]||0))SAVE.best[w]=G.score;
+  SAVE.time=SAVE.time||{};
+  if(!SAVE.time[w]||secs<SAVE.time[w])SAVE.time[w]=secs;   /* fastest run */
   save();
   sendScore({batch:SAVE.batch||"-",name:playerName(),island:w,score:G.score,
-    stars:stars,attempt:SAVE.att[w],dev:devId()});
+    stars:stars,attempt:SAVE.att[w],dev:devId(),secs:secs});
 
   $("#res-stars").textContent=stars?"⭐".repeat(stars)+"☆".repeat(3-stars):"☆☆☆";
   $("#res-title").textContent=stars===3?"Perfect run, "+playerName()+"!":stars===2?"Great job!":stars===1?"Nice work!":"Keep practising!";
@@ -889,6 +894,7 @@ function finish(){
 
 /* ---------- renderers ---------- */
 function renderQuestion(){
+  if(G.t0==null)G.t0=Date.now();       /* first question on screen = start of the run */
   var q=G.q,host=$("#stage");
   host.className="card";
   host.innerHTML="<div class='q'>"+q.q+"</div><div id='head'>"+(q.head||"")+"</div><div id='ui'></div>";
@@ -1025,6 +1031,7 @@ function cheerText(){
 function judge(ok,note){
   if(G.locked)return;
   G.locked=true;
+  if(G.round>=QN&&G.t1==null)G.t1=Date.now();
   clearTimeout(cmpTimer);
   var stage=$("#stage");
   if(ok){
@@ -1105,31 +1112,42 @@ function syncMute(){
 }
 
 /* ---------- report card ---------- */
+/* local date, not toISOString(): UTC would show yesterday for users ahead of UTC */
+function today(){
+  var d=new Date();
+  return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+}
+function mmss(s){
+  if(s==null)return "—";
+  return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2);
+}
 function reportText(){
   var p=["NUMBERLANDIA",playerName(),SAVE.batch||"-"];
   for(var w=1;w<=5;w++){
     p.push("W"+w+":"+((SAVE.best||{})[w]||0)+"/"+QN+
-           "*"+(SAVE.stars[w]||0)+" a"+((SAVE.att||{})[w]||0));
+           "*"+(SAVE.stars[w]||0)+" a"+((SAVE.att||{})[w]||0)+
+           " t"+((SAVE.time||{})[w]||0));
   }
-  p.push(new Date().toISOString().slice(0,10));
+  p.push(today());
   return p.join("|");
 }
 function openReport(){
-  var rows="",best=SAVE.best||{},att=SAVE.att||{};
+  var rows="",best=SAVE.best||{},att=SAVE.att||{},tm=SAVE.time||{};
   for(var w=1;w<=5;w++){
     var st=SAVE.stars[w]||0;
     rows+="<tr><th>"+esc(WORLDS[w-1].name)+"</th>"+
       "<td class='n'>"+(st?"⭐".repeat(st):"—")+"</td>"+
       "<td class='n'>"+(best[w]||0)+"/"+QN+"</td>"+
-      "<td class='n'>"+(att[w]||0)+"</td></tr>";
+      "<td class='n'>"+(att[w]||0)+"</td>"+
+      "<td class='n'>"+(att[w]?mmss(tm[w]||0):"—")+"</td></tr>";
   }
   $("#repbody").innerHTML=
     "<div class='who'>"+esc(playerName())+(SAVE.batch?" · class "+esc(SAVE.batch):"")+
     (SAVE.trophy?" · 🏆":"")+"</div>"+
-    "<table><tr><th>Island</th><th class='n'>Stars</th><th class='n'>Best</th><th class='n'>Tries</th></tr>"+
+    "<table><tr><th>Island</th><th class='n'>Stars</th><th class='n'>Best</th>"+
+    "<th class='n'>Tries</th><th class='n'>Time</th></tr>"+
     rows+"</table>"+
-    "<div style='text-align:center;opacity:.7;margin-top:8px'>"+
-    new Date().toISOString().slice(0,10)+"</div>";
+    "<div style='text-align:center;opacity:.7;margin-top:8px'>"+today()+"</div>";
   var box=$("#repqr");
   try{
     var q=qrcode(0,"M");
