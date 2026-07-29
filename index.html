@@ -82,9 +82,9 @@ h1{font-size:clamp(34px,11vw,54px);margin:.2em 0 0;text-align:center;letter-spac
   font-weight:800;font-size:clamp(17px,5vw,24px);letter-spacing:-.5px;
   text-shadow:0 2px 10px rgba(0,0,0,.6)}
 #hudbar button.off,.btn.off{opacity:.38;text-decoration:line-through}
-#hudbar button{min-height:44px;min-width:38px;flex:0 0 auto;padding:0 5px;border:0;border-radius:14px;cursor:pointer;font-size:19px;
+#hudbar button{min-height:44px;min-width:48px;flex:0 0 auto;padding:0 10px;border:0;border-radius:14px;cursor:pointer;font-size:19px;
   background:rgba(12,8,30,.5);color:#fff;border:2px solid var(--line);backdrop-filter:blur(6px)}
-#hudbar .tot{font-weight:800;font-size:15px;text-shadow:0 2px 8px #000;white-space:nowrap}
+#hudbar .tot{font-weight:800;font-size:17px;text-shadow:0 2px 8px #000;white-space:nowrap}
 #hint{text-align:center;font-size:14px;opacity:.85;text-shadow:0 2px 8px #000;margin-top:4px}
 
 /* island panel (bottom sheet) */
@@ -160,9 +160,23 @@ body.cine #hudbar,body.cine #hint{visibility:hidden}
 #nameinput::placeholder{color:rgba(255,255,255,.45)}
 #namenote{font-size:14px;line-height:1.4;color:rgba(255,255,255,.8);
   margin:0 0 14px;padding:0 4px}
-#namechip,#namechip2{max-width:112px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:14px!important;font-family:var(--disp);letter-spacing:.04em}
-@media (max-width:470px){ #namechip .who{display:none} }
+/* one settings popover, every width — the bar never holds more than three controls */
+#settings{position:absolute;right:14px;top:60px;z-index:12;display:none;
+  width:min(266px,calc(100vw - 28px));padding:10px;
+  background:rgba(14,9,34,.96);border:2px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(8px);box-shadow:0 14px 34px rgba(0,0,0,.55)}
+#settings.on{display:block}
+.srow{display:flex;align-items:center;gap:11px;width:100%;min-height:50px;margin-bottom:7px;
+  padding:10px 13px;border:0;border-radius:14px;background:rgba(255,255,255,.09);
+  color:#fff;font-family:inherit;font-weight:600;font-size:16px;line-height:1.2;
+  text-align:left;cursor:pointer;transition:background .12s}
+.srow:last-child{margin-bottom:0}
+.srow:active{background:rgba(255,255,255,.2)}
+.srow span{font-size:21px;width:25px;text-align:center;flex:0 0 auto}
+.srow b{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .val{font-style:normal;opacity:.72;font-size:14px;flex:0 0 auto;max-width:96px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow.off{opacity:.5}
 
 #story{position:fixed;inset:0;z-index:36;display:none;align-items:center;justify-content:center;
   padding:18px;background:rgba(5,2,16,.9);overflow:auto}
@@ -399,11 +413,14 @@ h1{filter:drop-shadow(0 3px 0 #45206e) drop-shadow(0 5px 0 #2a1240) drop-shadow(
       <span class="ttl">🏝️ Numberlandia</span>
       <span class="tot" id="tot">⭐ 0</span>
       <button id="report-btn" title="Report card">📋</button>
-      <button id="namechip" title="Change name">✏️<span class="who"></span></button>
-      <button id="replay" title="Story again">📖</button>
-      <button id="music" title="Music">🎵</button>
-      <button id="mute" title="Sound effects">🔊</button>
-      <button id="reset">↺</button>
+      <button id="gear" title="Settings">⚙️</button>
+    </div>
+    <div id="settings">
+      <button class="srow" id="namechip"><span>✏️</span><b>Name</b><i class="val"></i></button>
+      <button class="srow" id="replay"><span>📖</span><b>Story again</b></button>
+      <button class="srow" id="music"><span>🎵</span><b>Music</b><i class="val"></i></button>
+      <button class="srow" id="mute"><span>🔊</span><b>Sounds</b><i class="val"></i></button>
+      <button class="srow" id="reset"><span>↺</span><b>Reset progress</b></button>
     </div>
     <div id="hint">Tap an island to visit it</div>
   </section>
@@ -417,12 +434,13 @@ h1{filter:drop-shadow(0 3px 0 #45206e) drop-shadow(0 5px 0 #2a1240) drop-shadow(
     </div>
     <div id="trophy" class="card" style="display:none;text-align:center">🏆 <b>Boss defeated!</b> You are a Number Master.</div>
     <div id="worlds"></div>
-    <div class="row" style="margin-top:14px">
-      <button class="btn ghost" id="report-btn2" title="Report card">📋</button>
-      <button class="btn ghost" id="namechip2" title="Change name">✏️</button>
-      <button class="btn ghost" id="music2" title="Music">🎵</button>
-      <button class="btn ghost" id="mute2" title="Sound effects">🔊</button>
-      <button class="btn ghost" id="reset2">↺ Reset</button>
+    <div class="card" style="margin-top:14px">
+      <button class="srow" id="report-btn2"><span>📋</span><b>Report card</b></button>
+      <button class="srow" id="namechip2"><span>✏️</span><b>Name</b><i class="val"></i></button>
+      <button class="srow" id="replay2"><span>📖</span><b>Story again</b></button>
+      <button class="srow" id="music2"><span>🎵</span><b>Music</b><i class="val"></i></button>
+      <button class="srow" id="mute2"><span>🔊</span><b>Sounds</b><i class="val"></i></button>
+      <button class="srow" id="reset2"><span>↺</span><b>Reset progress</b></button>
     </div>
   </section>
 
@@ -857,6 +875,7 @@ function startWorld(w){
   G={world:w,round:0,score:0,streak:0,t0:null,t1:null};
   document.documentElement.style.setProperty("--accent",WORLDS[w-1].accent);
   closePanel();
+  closeSettings();
   document.body.classList.add("playing");
   musPlay(w===5?"boss":"quiz",{loop:true});
   show("play");
@@ -1123,13 +1142,26 @@ function renderHome(){
   $("#trophy").style.display=SAVE.trophy?"block":"none";
   syncMute();
 }
+function setRow(sel,emo,val){
+  var el=$(sel); if(!el)return;
+  var s=el.querySelector("span"),v=el.querySelector(".val");
+  if(s&&emo!=null)s.textContent=emo;
+  if(v)v.textContent=val==null?"":val;
+}
 function syncMute(){
-  $("#mute").textContent=SAVE.mute?"🔇":"🔊";
-  $("#mute2").textContent=SAVE.mute?"🔇":"🔊";
+  var me=SAVE.mute?"🔇":"🔊",mv=SAVE.mute?"Off":"On",uv=musOn()?"On":"Off";
+  setRow("#mute",me,mv); setRow("#mute2",me,mv);
+  setRow("#music",null,uv); setRow("#music2",null,uv);
   $("#music").classList.toggle("off",!musOn());
   $("#music2").classList.toggle("off",!musOn());
+  $("#mute").classList.toggle("off",!!SAVE.mute);
+  $("#mute2").classList.toggle("off",!!SAVE.mute);
   $("#tot").textContent="⭐ "+totalStars();
 }
+
+/* ---------- settings popover ---------- */
+function settingsOpen(){ return $("#settings").classList.contains("on") }
+function closeSettings(){ $("#settings").classList.remove("on") }
 
 /* ---------- report card ---------- */
 /* local date, not toISOString(): UTC would show yesterday for users ahead of UTC */
@@ -1210,8 +1242,8 @@ function commitName(){
   if(cb)cb();
 }
 function syncName(){
-  $("#namechip").querySelector(".who").textContent=" "+playerName();
-  $("#namechip2").textContent="✏️ "+playerName();
+  setRow("#namechip",null,playerName());
+  setRow("#namechip2",null,playerName());
 }
 function storyLines(){
   var L=STORY.slice();
@@ -1290,20 +1322,26 @@ function boot(){
   document.addEventListener("keydown",gateTap);   /* keyboard users can start it too */
   $("#crawl").onclick=endOpening;
   $("#storygo").onclick=function(){ sndTap(); endOpening() };
-  $("#replay").onclick=function(){ sndTap(); musArm(); startOpening() };
+  var story=function(){ sndTap(); closeSettings(); musArm(); startOpening() };
+  $("#replay").onclick=story; $("#replay2").onclick=story;
   $("#namego").onclick=function(){ sndTap(); commitName() };
   $("#nameinput").addEventListener("keydown",function(e){
     e.stopPropagation();                                  /* don't let Enter hit the gate */
     if(e.key==="Enter")commitName();
   });
-  var rep=function(){ sndTap(); openReport() };
+  var rep=function(){ sndTap(); closeSettings(); openReport() };
   $("#report-btn").onclick=rep; $("#report-btn2").onclick=rep;
+  $("#gear").onclick=function(e){ e.stopPropagation(); sndTap(); $("#settings").classList.toggle("on") };
+  /* clicks inside never bubble, so toggling music/sounds leaves the popover open */
+  $("#settings").addEventListener("click",function(e){ e.stopPropagation() });
+  document.addEventListener("click",function(){ if(settingsOpen())closeSettings() });
   $("#repclose").onclick=function(){ sndTap(); $("#report").classList.remove("on") };
-  var editName=function(){ sndTap(); openName(null) };
+  var editName=function(){ sndTap(); closeSettings(); openName(null) };
   $("#namechip").onclick=editName; $("#namechip2").onclick=editName;
   syncName();
   musPlay("hub",{loop:true});
   var reset=function(){
+    closeSettings();
     if(confirm("Erase all stars and free-the-animals progress?")){
       SAVE={stars:{},v:2}; save(); goHub();
     }
@@ -1758,6 +1796,7 @@ function focusIsland(w,cb){
 function onTap(e){
   if(CUT)return skipCut();
   if(document.body.classList.contains("playing"))return;
+  if(settingsOpen()){ closeSettings(); return }
   var r=ren.domElement.getBoundingClientRect();
   V2.x=((e.clientX-r.left)/r.width)*2-1;
   V2.y=-((e.clientY-r.top)/r.height)*2+1;
